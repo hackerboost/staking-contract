@@ -5,7 +5,6 @@ import { Inter } from "next/font/google";
 import Providers from "./Providers";
 import { headers } from "next/headers";
 
-
 const inter = Inter({ subsets: ["latin"] });
 
 export default async function RootLayout({
@@ -18,7 +17,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-      <Providers cookie={cookie}>{children}</Providers>
+        <Providers cookie={cookie}>{children}</Providers>
       </body>
     </html>
   );
