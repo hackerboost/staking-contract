@@ -43,9 +43,6 @@ Here, we use cookieStorage to store Wagmi data in browser cookies. This allows p
 
 The reduce function iterates through the supportedChains array. For each chain, it creates a key-value pair in the transports object ( [arbitrumSepolia.id]: http() ). These transports handle making HTTP requests to the blockchain nodes for interactions and data retrieval.
 
-
-Wrap App in Context Provider and RainbowKitProvider
-
 ## Let’s create and export the providers file, in `app/providers.tsx`
 ```typeScript
 "use client";
