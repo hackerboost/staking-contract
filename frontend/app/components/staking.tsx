@@ -4,7 +4,7 @@ import styles from "../../styles/Home.module.css";
 import { useAccount } from "wagmi";
 import { ethers } from "ethers";
 
-import { CONTRACT_ADDRESS, ABI } from "../contractData/index";
+import { CONTRACT_ADDRESS, ABI } from "../contractInfo/index";
 
 export default function Staking() {
   const { isConnected, address } = useAccount();
