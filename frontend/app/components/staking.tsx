@@ -4,64 +4,57 @@ import styles from "../../styles/Home.module.css";
 import { useAccount } from "wagmi";
 import { ethers } from "ethers";
 
-import { CONTRACT_ADDRESS, ABI } from "../contracts/index";
+import { CONTRACT_ADDRESS, ABI } from "../contractInfo/index";
 
 export default function Staking() {
   const { isConnected, address } = useAccount();
-  const [contract, setContract] = useState<any>(null);
-  const [signer, setSigner] = useState<any>(null);
+
   const [walletBalance, setWalletBalance] = useState("");
   const [stakingTab, setStakingTab] = useState(true);
   const [unstakingTab, setUnstakingTab] = useState(false);
-  const [unstakeValue, setUnstakeValue] = useState(0);
+  const [unstakeValue, setUnstakeValue] = useState<string | number>("");
   const [assetIds, setAssetIds] = useState<number[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [amount, setAmount] = useState<string | number>("");
+  const [stakingLength, setStakingLength] = useState<number>(0);
 
+  // Conversions
   const toWei = (ether: string) => ethers.parseEther(ether);
   const toEther = (wei: ethers.BigNumberish) => ethers.formatEther(wei);
 
-  useEffect(() => {
-    async function initialize() {
-      if (typeof window.ethereum !== "undefined") {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const contractIns = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-        setContract(contractIns);
-        setSigner(signer);
-      }
-    }
-    if (isConnected) {
-      initialize();
-    }
-  }, [isConnected]);
 
-  useEffect(() => {
-    if (isConnected) {
-      getWalletBalance();
-    }
-  }, [isConnected]);
+// 🟢 LET'S BUILD
 
-  const getWalletBalance = async () => {
-    if (!signer) return;
-    const balance = await signer.getBalance();
-    setWalletBalance(toEther(balance));
-  };
+  // 👩🏻‍💻 1. LOAD CONTRACT DATA FROM BLOCKCHAIN ON ANY COMPONENT MOUNT
+  // The first thing to do before you can interact with the contract!
 
+  // 👩🏻‍💻 2. GET YOUR WALLET BALANCE
+
+  // 👩🏻‍💻 3. CALL THE STAKING FUNCTION FROM YOUR CONTRACT
+  const stakeEther = (stakingLength: number) => {};
+
+  // 👩🏻‍💻 4. CALL THE WITHDRAWAL FUNCTION FROM YOUR CONTRACT
+  const withdraw = (positionId: number) => {};
+
+  // Function to switch to the Unstake tab
   const switchToUnstake = async () => {
     if (!unstakingTab) {
       setUnstakingTab(true);
       setStakingTab(false);
-      if (address) {
-        const assetIds = await getAssetIds(address);
-        setAssetIds(assetIds);
-        getAssets(assetIds);
-      }
-      setAssetIds(assetIds);
-      getAssets(assetIds);
+
+     // 🟠 UNCOMMENT IT
+
+      // if (address) {
+      //   const assetIds = await getAssetIds(address);
+      //   setAssetIds(assetIds);
+      //   getAssets(assetIds);
+      // }
+      // setAssetIds(assetIds);
+      // getAssets(assetIds);
     }
   };
 
+  // Function to switch to the Stake tab
   const switchToStake = () => {
     if (!stakingTab) {
       setStakingTab(true);
@@ -78,10 +71,12 @@ export default function Staking() {
     open: boolean;
   }
 
-  const getAssetIds = async (address: string): Promise<number[]> => {
-    if (!contract) return [];
-    return await contract.getPositionIdsForAddress(address);
-  };
+  // 🔴 Function to get all position IDs for a user address (UNCOMMENT IT)
+
+  // const getAssetIds = async (address: string): Promise<number[]> => {
+  //   if (!contract) return [];
+  //   return await contract.getPositionIdsForAddress(address);
+  // };
 
   const calcDaysRemaining = (unlockDate: number): number => {
     const timeNow = Date.now() / 1000;
@@ -98,46 +93,46 @@ export default function Staking() {
     open: boolean;
   }
 
-  const getAssets = async (ids: number[]): Promise<void> => {
-    if (!contract) return;
-    const queriedAssets: RawAsset[] = await Promise.all(ids.map((id) => contract.getPositionById(id)));
-    const parsedAssets: Asset[] = queriedAssets.map((asset) => ({
-      positionId: asset.positionId,
-      percentInterest: Number(asset.percentInterest) / 100,
-      daysRemaining: calcDaysRemaining(Number(asset.unlockDate)),
-      etherInterest: toEther(asset.weiInterest),
-      etherStaked: toEther(asset.weiStaked),
-      open: asset.open,
-    }));
-    setAssets(parsedAssets);
-  };
+  // 🔴 Function to get a position by an ID (UNCOMMENT IT)
 
-  const stakeEther = async ({ stakingLength }: any): Promise<void> => {
-    if (!contract) return;
-    const wei = toWei(String(amount));
-    const tx = await contract.stakeEther(stakingLength, { value: wei });
-    await tx.wait();
-  };
+  // const getAssets = async (ids: number[]): Promise<void> => {
+  //   if (!contract) return;
+  //   const queriedAssets: RawAsset[] = await Promise.all(
+  //     ids.map((id) => contract.getPositionById(id))
+  //   );
 
-  const withdraw = async (positionId: number) => {
-    if (!contract) return;
-    const tx = await contract.closePosition(positionId);
-    await tx.wait();
-  };
+  //   const parsedAssets: Asset[] = queriedAssets.map((asset) => ({
+  //     positionId: asset.positionId,
+  //     percentInterest: Number(asset.percentInterest) / 100,
+  //     daysRemaining: calcDaysRemaining(Number(asset.unlockDate)),
+  //     etherInterest: toEther(asset.weiInterest),
+  //     etherStaked: toEther(asset.weiStaked),
+  //     open: asset.open,
+  //   }));
+  //   setAssets(parsedAssets);
+  // };
 
   return (
     <section className={styles.stakingContainer}>
-      <section>
+      <section className="w-full border dark:border-white border-black dark:border-opacity-15 border-opacity-15 rounded-2xl shadow-2xl bg-blue-950 dark:bg-slate-950 p-4 flex flex-col justify-center items-center">
         <section className={styles.stakeUnstakeTab}>
-          <section className={`${stakingTab ? styles.stakingType : ""}`} id="stake" onClick={switchToStake}>
+          <section
+            className={`${stakingTab ? styles.stakingType : ""}`}
+            id="stake"
+            onClick={switchToStake}
+          >
             Stake
           </section>
-          <section className={`${unstakingTab ? styles.stakingType : ""}`} id="unstake" onClick={switchToUnstake}>
+          <section
+            className={`${unstakingTab ? styles.stakingType : ""}`}
+            id="unstake"
+            onClick={switchToUnstake}
+          >
             Unstake
           </section>
         </section>
         <section className={styles.stakingSection}>
-          <span className={styles.apy}>7% APY</span>
+          <span className={styles.apy}>{stakingLength} DAYS</span>
           {stakingTab ? (
             <section className={styles.stakingBox}>
               <h2>Stake</h2>
@@ -151,7 +146,32 @@ export default function Staking() {
                 placeholder="Enter Amount"
                 required
               />
-              <button className={styles.stakeBtn} onClick={() => stakeEther(0)}>STAKE</button>
+
+              {/* Dropdown for selecting staking length */}
+              <select
+                className={styles.inputField}
+                value={stakingLength}
+                onChange={(e) => setStakingLength(Number(e.target.value))}
+              >
+                <option value="0">Flexible (0 Days) - 7% APY</option>
+                <option value="30">Locked (30 Days) - 8% APY</option>
+                <option value="60">Locked (60 Days) - 9% APY</option>
+                <option value="90">Locked (90 Days) - 12% APY</option>
+              </select>
+
+              <section className={styles.stakingInfo}>
+                <p>
+                  Balance:{" "}
+                  <span>
+                    {(Number(walletBalance) / 10 ** 18).toLocaleString()}
+                  </span>
+                </p>
+                <p>Exchange Rate: 1.03582967</p>
+                {/* <p>Transaction Cost</p> */}
+              </section>
+              <button className={styles.stakeBtn} onClick={() => stakeEther(0)}>
+                STAKE
+              </button>
             </section>
           ) : (
             <section className={styles.stakingBox}>
@@ -166,7 +186,30 @@ export default function Staking() {
                 placeholder="Enter Amount"
                 required
               />
-              <button className={styles.stakeBtn} onClick={() => assets.length > 0 && withdraw(assets[assets.length - 1].positionId)}>UNSTAKE</button>
+              <section className={styles.stakingInfo}>
+                <p className="flex flex-col">
+                  <span>Positions: </span>
+                  {assets.length > 0 &&
+                    assets.map((a, id) => (
+                      <span key={id}>{a.open ? a.etherStaked : ""}</span>
+                    ))}
+                </p>
+
+                {/* <p>Transaction Cost</p> */}
+                <p>
+                  You Receive:{" "}
+                  {unstakeValue == 0 ? "" : Number(unstakeValue) * 1.07}
+                </p>
+              </section>
+              <button
+                className={styles.stakeBtn}
+                onClick={() =>
+                  assets.length > 0 &&
+                  withdraw(assets[assets.length - 1].positionId)
+                }
+              >
+                UNSTAKE
+              </button>
             </section>
           )}
         </section>
